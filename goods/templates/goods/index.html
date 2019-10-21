@@ -1,0 +1,56 @@
+ cena od do
+{% extends 'base.html' %}
+
+{% block 'title' %}Nejnovější nabídky{% endblock %}
+
+{% block 'content' %}
+
+<form action="" method="get">
+    <input type="search" name="name" id="nameId" placeholder="Hledat">
+</form>
+
+{% if offers %}
+    <table>
+        <thead>
+            <tr>
+                <th><a href="?order=name">Název</a></th>
+                <th><a href="?order=created_at">Datum</a></th>
+                <th><a href="?order=price">Cena</a></th>
+                <th><a href="?order=amount">Množství</a></th>
+            </tr>
+        </thead>
+
+        <tbody>           
+            {% for offer in offers %}
+                <tr>
+                    <td><a href="{% url 'goods:detail' offer.id %}">{{ offer.name }}</a></td>
+                    <td>{{ offer.created_at }}</td>
+                    <td>{{ offer.price }} {{ offer.currency }}</td>
+                    <td>{{ offer.amount }}</td>
+                </tr>               
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_paginated %}
+        <div class="pagination">
+            <span class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="/?page={{ page_obj.previous_page_number }}">predchozi</a>
+                {% endif %}
+                <span class="page-current">
+                    strana {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}.
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="/?page={{ page_obj.next_page_number }}">dalsi</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+{% else %}
+    <p>No offers available.</p>
+{% endif %}
+
+<a href="{% url 'goods:create' %}">Vytvořit nabídku</a>
+
+{% endblock %}

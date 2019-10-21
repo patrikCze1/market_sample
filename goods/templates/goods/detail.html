@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block 'title' %} Detail {% endblock %}
+
+{% block 'content' %}
+
+<h1>{{ offer.name }}</h1>
+
+<ul>
+    {% for image in offer.image_set.all %}
+    <img src="{{ image.url }}" alt="Obrázek">
+    {% endfor %}
+</ul>
+
+<p>
+    <h4>Popis</h4>
+    {{ offer.description }}
+</p>
+
+<p>
+    <h4>Info</h4>
+    Množství: {{ offer.amount }}
+    <br>
+    Cena:
+    {{ offer.price }}
+    {{ offer.currency }}
+    <br>
+    Uživatel: <a href="{% url 'accounts:profile' offer.user.id %}">{{ offer.user }}</a>
+    Vytvořeno: {{ offer.created_at }}
+</p>
+
+{% if user.is_authenticated %}
+    {% if user.id == offer.user.id %}
+
+    <h3>Administrace nabídky</h3>
+    <span>
+        <a href="{% url 'goods:updateOffer' offer.id %}">Upravit</a>
+        <form method="POST" action="{% url 'goods:deleteOffer' offer.id %}">
+            {% csrf_token %}
+            <input type="submit" value="Smazat" onclick="return confirm('Opravdu chcete tuto nabídku smazat?')">
+        </form>
+    </span>
+
+    {% endif %}
+{% endif %}
+
+<form action="{% url 'goods:sendEmail' offer.id %}" method="post">
+    {% csrf_token %}
+    <textarea rows="4" cols="50" name='text' placeholder="Vaše zpráva..." required></textarea>
+    <input type="submit" value="Odeslat">
+</form>
+
+
+<p>
+    <h4>Komentáře</h4>
+    {% if user.is_authenticated %}
+
+    <form action="{% url 'goods:sendComment' offer.id %}" method="post">
+        {% csrf_token %}
+
+        <input type="text" name="text" placeholder="Vaše zpráva..." required>
+
+        <input type="submit" value="Odeslat">
+    </form>
+
+    {% else %}
+    <p>Pro přidávání komentářů se musíte přihlásit.</p>
+    {% endif %}
+
+    <ul>
+        {% for comment in offer.comment_set.all %}
+        <li title={{ comment.created_at }}>
+            <a href="{% url 'accounts:profile' offer.user.id %}">{{ comment.user }}</a>: {{ comment.text }} 
+        </li>
+        {% endfor %}
+    </ul>
+</p>
+<a href="{% url 'goods:index' %}">Hlavni stranka</a>
+
+{% endblock %}
